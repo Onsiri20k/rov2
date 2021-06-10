@@ -1,0 +1,54 @@
+version: '3.7'
+services:
+    web:
+        container_name: esports_rov_in_th_web
+        build:
+            context: .
+            dockerfile: Dockerfile
+        environment:
+            DEPLOY: dev
+            REGION: th
+            DOMAIN: test.esports.rov.in.th
+            TIME_ZONE: Asia/Bangkok
+            DEV_DB_HOST: mysql
+            DEV_DB_PORT: 3306
+            DEV_DB_USER: root
+            DEV_DB_PASSWORD: root
+            DEV_DB_NAME: esports_rov_in_th
+        links:
+            - redis:redis
+            - mysql:mysql
+        ports:
+            - '80:80'
+        volumes:
+            - ./:/var/www/esports.rov.in.th
+        command: 'sh -c "sh /var/www/esports.rov.in.th/start-dev-web.sh"'
+        networks:
+            - development
+
+    redis:
+        container_name: esports_rov_in_th_redis
+        image: redis:alpine
+        ports:
+            - '6389:6379'
+        environment:
+            REDIS_PASSWORD: root
+        networks:
+            - development
+
+    mysql:
+        container_name: esports_rov_in_th_mysql
+        image: yobasystems/alpine-mariadb
+        ports:
+            - '6606:3306'
+        environment:
+            MYSQL_DATABASE: esports_rov_in_th
+            MYSQL_USER: root
+            MYSQL_PASSWORD: root
+            MYSQL_ROOT_PASSWORD: root
+        networks:
+            - development
+
+networks:
+    development:
+        driver: 'bridge'
